@@ -1,0 +1,9 @@
+@media only screen and (width <=1300px) {
+    .tables-container {
+        flex-direction: column;
+    }
+
+    .tables-container>div {
+        margin-top: 50px;
+    }
+}

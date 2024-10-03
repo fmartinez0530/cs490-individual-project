@@ -1,0 +1,22 @@
+.table {
+    border-collapse: collapse;
+    border: none;
+    border-radius: 25px;
+    background-color: #26272b;
+    color: white;
+    overflow: hidden;
+    width: 650px;
+}
+
+.table-cell {
+    padding: 20px 20px;
+    border: none;
+}
+
+.bot-border {
+    border-bottom: 2px solid black;
+}
+
+th {
+    background-color: #810c15;
+}
