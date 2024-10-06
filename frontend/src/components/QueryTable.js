@@ -15,28 +15,38 @@ const QueryTable = ({ tableId, onButtonClick }) => {
     //    setState(newState);
     //};
 
-
     useEffect(() => {
-        fetch(`http://localhost:5000/landing_page_tables?tableId=${encodeURIComponent(tableId)}`)
-            .then(res => res.json())
-            .then(data => {
-                //console.log(data); // Log the data to check the order
-                setTableData(data);
-            })
-            .catch(err => console.error('Error fetching data:', err))
-    }, []);
+        fetchLandingPageData();
+        function fetchLandingPageData() {
+            fetch(`http://localhost:5000/landing_page_tables?tableId=${encodeURIComponent(tableId)}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    setTableData(data);
+                    clearInterval(fetchLandingPageInterval);
+                })
+                .catch((err) => {
+                    console.error('Error fetching data:', err);
+                })
+        }
+
+        const fetchLandingPageInterval = setInterval(() => {
+            fetchLandingPageData();
+        }, 5000);
+        return () => clearInterval(fetchLandingPageInterval);
+    }, [tableId]);
 
     useEffect(() => {
         if (movieData && tableData) {
             onButtonClick("visible", tableId, tableData, movieData);
         }
-    }, [movieData]);
+    }, [movieData, tableData, tableId, onButtonClick]);
 
     useEffect(() => {
         if (actorData && tableData) {
             onButtonClick("visible", tableId, tableData, actorData, actorId);
         }
-    }, [actorData]);
+    }, [actorData, actorId, onButtonClick, tableData, tableId]);
 
     function displayClickedRowData(clicked_elem, table_id) {
         if (table_id === 0) {

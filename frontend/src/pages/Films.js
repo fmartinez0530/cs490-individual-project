@@ -10,8 +10,6 @@ import '../presets.css'
 let PageSize = 10;
 
 const Films = () => {
-    var newFilmsData;
-
     const [filmsData, setFilmsData] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -19,15 +17,15 @@ const Films = () => {
     const [filterTerm, setFilterTerm] = useState("film_title");
     const [filterInput, setFilterInput] = useState(null);
 
-    const currentTableData = useMemo(() => {
+    const { paginatedData, tableLength } = useMemo(() => {
         const firstPageIndex = (currentPage - 1) * PageSize;
         const lastPageIndex = firstPageIndex + PageSize;
-        newFilmsData = filmsData;
+        let newFilmsData = filmsData;
         if (filterInput) {
-            if (filterTerm == "film_title") {
+            if (filterTerm === "film_title") {
                 newFilmsData = filmsData.filter(user => user.title?.toString().toLowerCase().includes(filterInput.toString().toLowerCase()));
             }
-            else if (filterTerm == "actor_name") {
+            else if (filterTerm === "actor_name") {
                 newFilmsData = filmsData.filter(user => user.actors?.toString().toLowerCase().includes(filterInput.toString().toLowerCase()));
 
                 // Rearrange the actor's names to show matching actors first
@@ -46,21 +44,33 @@ const Films = () => {
                 });
 
             }
-            else if (filterTerm == "film_genre") {
+            else if (filterTerm === "film_genre") {
                 newFilmsData = filmsData.filter(user => user.category?.toString().toLowerCase().includes(filterInput.toString().toLowerCase()));
             }
         }
-        return newFilmsData.slice(firstPageIndex, lastPageIndex);
+        return {
+            paginatedData: newFilmsData.slice(firstPageIndex, lastPageIndex),
+            tableLength: newFilmsData.length
+        };
     }, [currentPage, filmsData, filterInput, filterTerm]);
 
     useEffect(() => {
-        fetch(`http://localhost:5000/films_list`)
-            .then(res => res.json())
-            .then(data => {
-                console.log(data); // Log the data to check the order
-                setFilmsData(data);
-            })
-            .catch(err => console.error('Error fetching data:', err))
+        function fetchFilmsData() {
+            fetch(`http://localhost:5000/films_list`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    setFilmsData(data);
+                    clearInterval(fetchFilmsDataInterval);
+                    //window.clearInterval(0);
+                })
+                .catch(err => console.error('Error fetching data:', err));
+        }
+
+        fetchFilmsData();
+        const fetchFilmsDataInterval = setInterval(fetchFilmsData, 5000);
+
+        return () => clearInterval(fetchFilmsDataInterval);
     }, []);
 
     return (
@@ -86,7 +96,7 @@ const Films = () => {
                 <PaginationTest
                     //className="pagination-bar"
                     currentPage={currentPage}
-                    totalCount={newFilmsData.length}
+                    totalCount={tableLength}
                     pageSize={PageSize}
                     onPageChange={page => setCurrentPage(page)}
                 />
@@ -100,9 +110,9 @@ const Films = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentTableData.length > 0 ? (
+                        {paginatedData.length > 0 ? (
                             <>
-                                {currentTableData.map(row => (
+                                {paginatedData.map(row => (
                                     <tr className="hoverable-row" key={`film-${row.FID}`}>
                                         <td className="table-cell" style={{ textAlign: "center" }}>{row.FID}</td>
                                         <td className="table-cell">{row.title}</td>
@@ -111,7 +121,7 @@ const Films = () => {
                                     </tr>
                                 ))}
                                 {/* Add empty rows if necessary */}
-                                {Array.from({ length: PageSize - currentTableData.length }).map((_, index) => (
+                                {Array.from({ length: PageSize - paginatedData.length }).map((_, index) => (
                                     <tr key={`empty-row-${index}`}>
                                         <td colSpan="3" className="empty-row table-cell"></td> {/* Adjust colspan based on your table structure */}
                                     </tr>
@@ -122,7 +132,7 @@ const Films = () => {
                                 <tr key={"empty-data"}>
                                     <td className="table-cell" colSpan="3">No films found.</td> {/* Adjust colspan based on your table structure */}
                                 </tr>
-                                {Array.from({ length: PageSize - currentTableData.length }).map((_, index) => (
+                                {Array.from({ length: PageSize - paginatedData.length }).map((_, index) => (
                                     <tr key={`empty-row-${index}`}>
                                         <td colSpan="3" className="empty-row table-cell"></td> {/* Adjust colspan based on your table structure */}
                                     </tr>

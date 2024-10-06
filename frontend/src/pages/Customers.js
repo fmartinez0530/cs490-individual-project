@@ -10,8 +10,6 @@ import '../presets.css'
 let PageSize = 10;
 
 const Customers = () => {
-    var newCustomersData;
-
     const [customersData, setCustomersData] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -19,32 +17,48 @@ const Customers = () => {
     const [filterTerm, setFilterTerm] = useState("customer_id");
     const [filterInput, setFilterInput] = useState(null);
 
-    const currentTableData = useMemo(() => {
+    const { paginatedData, tableLength } = useMemo(() => {
         const firstPageIndex = (currentPage - 1) * PageSize;
         const lastPageIndex = firstPageIndex + PageSize;
-        newCustomersData = customersData;
+        let newCustomersData = customersData;
         if (filterInput) {
-            if (filterTerm == "customer_id") {
+            if (filterTerm === "customer_id") {
                 newCustomersData = customersData.filter(user => user.ID.toString().includes(filterInput.toString()));
             }
-            else if (filterTerm == "first_name") {
+            else if (filterTerm === "first_name") {
                 newCustomersData = customersData.filter(user => user.name.toString().toLowerCase().split(" ")[0].includes(filterInput.toString().toLowerCase()));
             }
-            else if (filterTerm == "last_name") {
+            else if (filterTerm === "last_name") {
                 newCustomersData = customersData.filter(user => user.name.toString().toLowerCase().split(" ")[1].includes(filterInput.toString().toLowerCase()));
             }
         }
-        return newCustomersData.slice(firstPageIndex, lastPageIndex);
+        return {
+            paginatedData: newCustomersData.slice(firstPageIndex, lastPageIndex),
+            tableLength: newCustomersData.length
+        };
     }, [currentPage, customersData, filterInput, filterTerm]);
 
+
+
     useEffect(() => {
-        fetch(`http://localhost:5000/customers_list`)
-            .then(res => res.json())
-            .then(data => {
-                console.log(data); // Log the data to check the order
-                setCustomersData(data);
-            })
-            .catch(err => console.error('Error fetching data:', err))
+        fetchCustomersData();
+        function fetchCustomersData() {
+            fetch(`http://localhost:5000/customers_list`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    setCustomersData(data);
+                    clearInterval(fetchCustomersDataInterval);
+                })
+                .catch(err => console.error('Error fetching data:', err))
+        }
+
+        const fetchCustomersDataInterval = setInterval(() => {
+            fetchCustomersData();
+        }, 5000);
+
+        return () => clearInterval(fetchCustomersDataInterval);
+
     }, []);
     return (
         <>
@@ -69,7 +83,7 @@ const Customers = () => {
                 <PaginationTest
                     //className="pagination-bar"
                     currentPage={currentPage}
-                    totalCount={newCustomersData.length}
+                    totalCount={tableLength}
                     pageSize={PageSize}
                     onPageChange={page => setCurrentPage(page)}
                 />
@@ -86,9 +100,9 @@ const Customers = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentTableData.length > 0 ? (
+                        {paginatedData.length > 0 ? (
                             <>
-                                {customersData && currentTableData.map(row => (
+                                {customersData && paginatedData.map(row => (
                                     <tr className="hoverable-row" key={`customer-${row.ID}`}>
                                         <td className="table-cell" key={row.ID} style={{ textAlign: "center" }}>{row.ID}</td>
                                         <td className="table-cell" key={row.name}>{row.name}</td>
@@ -100,7 +114,7 @@ const Customers = () => {
                                     </tr>
                                 ))}
                                 {/* Add empty rows if necessary */}
-                                {Array.from({ length: PageSize - currentTableData.length }).map((_, index) => (
+                                {Array.from({ length: PageSize - paginatedData.length }).map((_, index) => (
                                     <tr key={`empty-row-${index}`}>
                                         <td colSpan="7" className="empty-row"></td> {/* Adjust colspan based on your table structure */}
                                     </tr>
@@ -111,7 +125,7 @@ const Customers = () => {
                                 <tr key={"empty-data"}>
                                     <td colSpan="7">No customers found.</td> {/* Adjust colspan based on your table structure */}
                                 </tr>
-                                {Array.from({ length: PageSize - currentTableData.length }).map((_, index) => (
+                                {Array.from({ length: PageSize - paginatedData.length }).map((_, index) => (
                                     <tr key={`empty-row-${index}`}>
                                         <td colSpan="7" className="empty-row"></td> {/* Adjust colspan based on your table structure */}
                                     </tr>

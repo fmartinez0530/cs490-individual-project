@@ -4,9 +4,7 @@
 
 #backdrop-container {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+
 
     width: 100vw;
     height: 100vh;
@@ -19,4 +17,31 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
+    background-color: #26272be7;
+    color: white;
+    padding: 20px;
+    border-radius: 25px;
+    max-width: 600px;
+
+    /*border: 4px solid #810c15;*/
+    box-shadow: 4px 4px 5px 2px #810c16e1;
+}
+
+.padding-info {
+    padding: 10px 20px;
+}
+
+.cell-info-actor {
+    padding: 20px 26px;
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+}
+
+button {
+    position: absolute;
+    right: 20px;
 }

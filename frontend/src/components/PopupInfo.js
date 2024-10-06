@@ -35,24 +35,29 @@ const PopupInfo = ({ props, visible, closePopup }) => {
 
     return (
         <div id='backdrop-container' className={visible}>
-            <button onClick={closePopup}>X</button>
+
             <div className='popup-info'>
+                <button onClick={closePopup}>X</button>
                 {props.tableId === 0 ? (
                     <>
                         <h2>{title}</h2>
-                        <p>Description: {desc}</p>
-                        <p>Release Year: {rel_year}</p>
-                        <p>Rating: {rating}</p>
-                        <p>Special Features: {spec_feat}</p>
+                        <p id='wrapDescription' className='padding-info'><u>Description:</u> {desc}</p>
+                        <p className='padding-info'><u>Release Year:</u> {rel_year}</p>
+                        <p className='padding-info'><u>Rating:</u> {rating}</p>
+                        <p className='padding-info'><u>Special Features:</u> {spec_feat}</p>
                     </>
                 ) : (
                     <>
                         <h2>{name}</h2>
+                        <tr>
+                            <th>Film Title</th>
+                            <th>Rental Count</th>
+                        </tr>
                         {props.selectedData.map(row => (
                             <tr key={row.film_id}>
                                 <>
-                                    <td key={`film-${row.title}`}>{row.title}</td>
-                                    <td key={`film-${row.rental_count}`}>{row.rental_count}</td>
+                                    <td key={`film-${row.title}`} className='cell-info-actor'>{row.title}</td>
+                                    <td key={`film-${row.rental_count}`} className='cell-info-actor'>{row.rental_count}</td>
                                 </>
                             </tr>
                         ))}
