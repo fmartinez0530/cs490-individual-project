@@ -49,18 +49,24 @@ const PopupInfo = ({ props, visible, closePopup }) => {
                 ) : (
                     <>
                         <h2>{name}</h2>
-                        <tr>
-                            <th>Film Title</th>
-                            <th>Rental Count</th>
-                        </tr>
-                        {props.selectedData.map(row => (
-                            <tr key={row.film_id}>
-                                <>
-                                    <td key={`film-${row.title}`} className='cell-info-actor'>{row.title}</td>
-                                    <td key={`film-${row.rental_count}`} className='cell-info-actor'>{row.rental_count}</td>
-                                </>
-                            </tr>
-                        ))}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Film Title</th>
+                                    <th>Rental Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {props.selectedData.map(row => (
+                                    <tr key={row.film_id}>
+                                        <>
+                                            <td key={`film-${row.title}`} className='cell-info-actor'>{row.title}</td>
+                                            <td key={`film-${row.rental_count}`} className='cell-info-actor'>{row.rental_count}</td>
+                                        </>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </>
                 )}
             </div >

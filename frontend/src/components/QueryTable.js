@@ -9,12 +9,6 @@ const QueryTable = ({ tableId, onButtonClick }) => {
     const [actorData, setActorData] = useState(null);
     const [actorId, setActorId] = useState(null);
 
-    //  Used for PopupInfo
-    //const [state, setState] = useState("hidden");
-    //const changeState = (newState) => {
-    //    setState(newState);
-    //};
-
     useEffect(() => {
         fetchLandingPageData();
         function fetchLandingPageData() {
@@ -40,13 +34,13 @@ const QueryTable = ({ tableId, onButtonClick }) => {
         if (movieData && tableData) {
             onButtonClick("visible", tableId, tableData, movieData);
         }
-    }, [movieData, tableData, tableId, onButtonClick]);
+    }, [movieData, tableData, tableId]);
 
     useEffect(() => {
         if (actorData && tableData) {
             onButtonClick("visible", tableId, tableData, actorData, actorId);
         }
-    }, [actorData, actorId, onButtonClick, tableData, tableId]);
+    }, [actorData, actorId, tableData, tableId]);
 
     function displayClickedRowData(clicked_elem, table_id) {
         if (table_id === 0) {

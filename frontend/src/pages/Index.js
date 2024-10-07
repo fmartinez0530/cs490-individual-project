@@ -41,12 +41,14 @@ const Index = () => {
         <>
             <div className="tables-container flex-row flex-centered-100">
                 <div>
+                    {/*Table ID = 0*/}
                     <h1>TOP 5 RENTED FILMS</h1>
-                    <QueryTable tableId={0} onButtonClick={handleButtonClick} />
+                    <QueryTable onButtonClick={handleButtonClick} />
                 </div>
                 <div>
+                    {/*Table ID = 1*/}
                     <h1>TOP 5 ACTORS</h1>
-                    <QueryTable tableId={1} onButtonClick={handleButtonClick} />
+                    <QueryTable onButtonClick={handleButtonClick} />
                 </div>
             </div>
             <PopupInfo

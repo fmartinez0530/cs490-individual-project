@@ -125,3 +125,21 @@ def sendFilmsList():
         return jsonify(results)
     except Exception as e:
         return jsonify({'error':str(e)}), 500
+
+@app.route('/customer_rental_hist', methods = ['GET'])
+def sendRentalHistory():
+    try:
+        customerId = request.args.get('customerId')
+        cursor = mysql.connection.cursor()
+        cursor.execute('''
+                Select rental_id, rental_date, customer_id, return_date, staff_id
+                From rental
+                Where customer_id = %s
+        ''', customerId)
+        data = cursor.fetchall()
+        columns = [column[0] for column in cursor.description]
+        cursor.close()
+        results = [dict(zip(columns, row)) for row in data]
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500

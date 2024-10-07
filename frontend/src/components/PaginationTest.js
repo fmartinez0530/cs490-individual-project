@@ -22,7 +22,7 @@ const PaginationTest = (props) => {
                 if (i === 1) {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${i}`} // unique key
+                            key={`pagination-item-${i}`} // unique key
                             className={classnames('pagination-item', {
                                 selected: i === currentPage
                             })}
@@ -39,7 +39,7 @@ const PaginationTest = (props) => {
                 else if (i <= 5) {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${i}`} // unique key
+                            key={`pagination-item-${i}`} // unique key
                             className={classnames('pagination-item', {
                                 selected: i === currentPage
                             })}
@@ -53,11 +53,11 @@ const PaginationTest = (props) => {
                         </li>
                     );
                 } else if (i === 6) {
-                    PaginationButtons.push(<li className="pagination-item dots">&#8230;</li>);
+                    PaginationButtons.push(<li key={'pagination-item-dots-6'} className="pagination-item dots">&#8230;</li>);
                 } else {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${lastPage}`} // unique key
+                            key={`pagination-item-${lastPage}`} // unique key
                             className={classnames('pagination-item', {
                                 selected: lastPage === currentPage
                             })}
@@ -75,7 +75,7 @@ const PaginationTest = (props) => {
                 if (i === 1) {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${i}`} // unique key
+                            key={`pagination-item-${i}`} // unique key
                             className={classnames('pagination-item', {
                                 selected: i === currentPage
                             })}
@@ -89,11 +89,11 @@ const PaginationTest = (props) => {
                         </li>
                     );
                 } else if (i === 2 || i === 6) {
-                    PaginationButtons.push(<li className="pagination-item dots">&#8230;</li>);
+                    PaginationButtons.push(<li key={`pagination-item-dots-${i}`} className="pagination-item dots">&#8230;</li>);
                 } else if (i === 3) {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${currentPage - 1}`} // unique key
+                            key={`pagination-item-${currentPage - 1}`} // unique key
                             className='pagination-item'
                             onClick={() => {
                                 if (currentPage - 1 !== currentPage) {
@@ -107,15 +107,17 @@ const PaginationTest = (props) => {
                 } else if (i === 4) {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${currentPage}`} // unique key
+                            key={`pagination-item-${currentPage}`} // unique key
                             className='pagination-item selected'
 
-                            //  Below doesn't make sense, but i'm doing it to keep the pattern
-                            onClick={() => {
-                                if (currentPage !== currentPage) {
-                                    onPageChange(currentPage);
-                                }
-                            }}
+                        //  Below doesn't make sense, but i'm doing it to keep the pattern
+                        /*
+                        onClick={() => {
+                            if (currentPage !== currentPage) {
+                                onPageChange(currentPage);
+                            }
+                        }}
+                        */
                         >
                             {currentPage}
                         </li>
@@ -123,7 +125,7 @@ const PaginationTest = (props) => {
                 } else if (i === 5) {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${currentPage + 1}`} // unique key
+                            key={`pagination-item-${currentPage + 1}`} // unique key
                             className='pagination-item'
                             onClick={() => {
                                 if (currentPage + 1 !== currentPage) {
@@ -137,7 +139,7 @@ const PaginationTest = (props) => {
                 } else {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${lastPage}`} // unique key
+                            key={`pagination-item-${lastPage}`} // unique key
                             className='pagination-item'
                             onClick={() => {
                                 if (lastPage !== currentPage) {
@@ -153,7 +155,7 @@ const PaginationTest = (props) => {
                 if (i === 1) {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${i}`} // unique key
+                            key={`pagination-item-${i}`} // unique key
                             className='pagination-item'
                             onClick={() => {
                                 if (i !== currentPage) {
@@ -165,11 +167,11 @@ const PaginationTest = (props) => {
                         </li>
                     );
                 } else if (i === 2) {
-                    PaginationButtons.push(<li className="pagination-item dots">&#8230;</li>);
+                    PaginationButtons.push(<li key={'pagination-item-dots-2'} className="pagination-item dots">&#8230;</li>);
                 } else {
                     PaginationButtons.push(
                         <li
-                            //key={`pagination-item-${lastPage - (7 - i)}`} // unique key
+                            key={`pagination-item-${lastPage - (7 - i)}`} // unique key
                             className={classnames('pagination-item', {
                                 selected: (lastPage - (7 - i)) === currentPage
                             })}
@@ -192,7 +194,7 @@ const PaginationTest = (props) => {
         for (let i = 0; i < Math.ceil(totalCount / pageSize); i++) {
             PaginationButtons.push(
                 <li
-                    //key={`pagination-item-${i}`} // unique key
+                    key={`pagination-item-${i}`} // unique key
                     className={classnames('pagination-item', {
                         selected: (i + 1) === currentPage
                     })}
