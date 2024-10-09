@@ -43,12 +43,12 @@ const Index = () => {
                 <div>
                     {/*Table ID = 0*/}
                     <h1>TOP 5 RENTED FILMS</h1>
-                    <QueryTable onButtonClick={handleButtonClick} />
+                    <QueryTable tableId={0} onButtonClick={handleButtonClick} />
                 </div>
                 <div>
                     {/*Table ID = 1*/}
                     <h1>TOP 5 ACTORS</h1>
-                    <QueryTable onButtonClick={handleButtonClick} />
+                    <QueryTable tableId={1} onButtonClick={handleButtonClick} />
                 </div>
             </div>
             <PopupInfo

@@ -135,11 +135,81 @@ def sendRentalHistory():
                 Select rental_id, rental_date, customer_id, return_date, staff_id
                 From rental
                 Where customer_id = %s
-        ''', customerId)
+                Order By rental_id;
+        ''', (customerId, ))
         data = cursor.fetchall()
         columns = [column[0] for column in cursor.description]
         cursor.close()
         results = [dict(zip(columns, row)) for row in data]
         return jsonify(results)
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500
+
+@app.route('/update_customer_rental_history', methods = ['POST'])
+def updateRentalHistory():
+    try:
+        data = request.json
+        customerId = data.get('custId')
+        returnDate = data.get('return_date')
+        print(returnDate)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute('''
+                Update rental
+                Set return_date = %s
+                Where customer_id = %s
+        ''', (returnDate, customerId))
+        mysql.connection.commit()
+        cursor.close()
+        return jsonify({'message': 'Rental history updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500
+    
+@app.route('/rent_film', methods = ['POST'])
+def rentFilmToCustomer():
+    try:
+        receivedData = request.json
+        customerId = receivedData.get('customerId')
+        print("Customer ID received:", customerId)
+        filmId = receivedData.get('filmId')
+        rentalDate = receivedData.get('rentalDate')
+
+        cursor = mysql.connection.cursor()
+        cursor.execute('''
+                Select * From customer
+                Where customer_id = %s            
+        ''', (customerId, ))
+
+        data = cursor.fetchone()
+        cursor.close()
+        print("Customer Data:", data)
+        if (data):
+            #Need to check if there are available copies to rent out
+            #If there are, handle appropriately
+            cursor = mysql.connection.cursor()
+            cursor.execute('''
+                Select inventory_id, film_id, store_id From inventory
+                Where inventory_id Not In (
+                    Select inventory_id From rental
+                    Where return_date Is NULL
+                ) And film_id = %s;
+            ''', (filmId, ))
+            filmCopies = cursor.fetchone()
+            cursor.close()
+            if (filmCopies):
+                inventory_id, film_id, staff_id = filmCopies
+                cursor = mysql.connection.cursor()
+                cursor.execute('''
+                        Insert Into rental (rental_date, inventory_id, customer_id, return_date, staff_id)
+                        Values (%s, %s, %s, NULL, %s)
+                ''', (rentalDate, inventory_id, customerId, staff_id))
+                mysql.connection.commit()
+                cursor.close()
+
+                return jsonify({'message': 'Customer found. Copy found.'}), 200
+            else:
+                return jsonify({'message': 'Customer found. No copies found.'}), 404
+        else:
+            return jsonify({'message': "Customer not found."}), 404
     except Exception as e:
         return jsonify({'error':str(e)}), 500

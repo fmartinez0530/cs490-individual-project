@@ -23,6 +23,9 @@
     padding: 20px;
     border-radius: 25px;
     max-width: 600px;
+    max-height: 600px;
+
+    overflow-y: scroll;
 
     /*border: 4px solid #810c15;*/
     box-shadow: 4px 4px 5px 2px #810c16e1;
@@ -30,6 +33,15 @@
 
 .padding-info {
     padding: 10px 20px;
+    margin: 0;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.rent-film-container {
+    display: flex;
 }
 
 .cell-info-actor {
@@ -44,4 +56,20 @@ h2 {
 button {
     position: absolute;
     right: 20px;
+}
+
+.overflowing-table-container {
+    max-height: 200px;
+    overflow-y: scroll;
+    text-align: center;
+}
+
+.sticky-heading {
+    position: sticky;
+    top: 0;
+    width: 100%;
+}
+
+.hoverable-row:hover {
+    background-color: #3b3b3b;
 }

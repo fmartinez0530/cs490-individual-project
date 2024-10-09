@@ -9,6 +9,8 @@ const QueryTable = ({ tableId, onButtonClick }) => {
     const [actorData, setActorData] = useState(null);
     const [actorId, setActorId] = useState(null);
 
+    //console.log(tableId);
+
     useEffect(() => {
         fetchLandingPageData();
         function fetchLandingPageData() {
