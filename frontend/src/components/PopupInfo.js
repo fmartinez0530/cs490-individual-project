@@ -1,9 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import editCustomerIcon from '../editCustomerIcon.png';
 
-const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
+const PopupInfo = ({ props, visible, closePopup, rowClicked, updatedCustomer, removedCustomer }) => {
     const [selectedCustomerData, setSelectedCustomerData] = useState(null);
     const [updateCustomerRental, setCustomerRental] = useState(0);
     const [selectedFilmData, setSelectedFilmData] = useState(null);
+    const [rentalHiddenState, setRentalHiddenState] = useState('visible');
+    const [detailsHiddenState, setDetailsHiddenState] = useState('fully-hidden');
+    const [rentResponseHiddenState, setRentResponseHiddenState] = useState('fully-hidden');
+
+    const [customerName, setCustomerName] = useState('');
+
+    const inputRefs = useRef({
+        name: null,
+        email: null,
+        address: null,
+        district: null,
+        zipCode: null,
+        city: null,
+        country: null,
+        phone: null
+    });
+
+    const rentResponseRef = useRef({
+        resContainer: null
+    });
 
     //  Variables used for tabledId === 0
     var title, desc, rel_year, rating, spec_feat;
@@ -12,7 +33,7 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
     var name;
 
     //  Variable for tableId === 2
-    var name2;
+    //var name2;
 
     //  Variable for tableId === 3
     var name3;
@@ -34,7 +55,7 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
         }
     }
     else if (props.tableId === 2) {
-        name2 = props.clickedName ? props.clickedName : "N/A";
+        //name2 = props.clickedName ? props.clickedName : "N/A";
     }
     else {
         name3 = props.clickedName ? props.clickedName : "N/A";
@@ -47,6 +68,7 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
                 .then(data => {
                     setSelectedCustomerData(data);
                     setCustomerRental(null);
+                    setCustomerName(props.clickedName);
                 })
                 .catch(err => console.error('Error fetching data:', err));
         }
@@ -58,27 +80,29 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
                 })
                 .catch(err => console.error('Error fetching data:', err));
         }
-    }, [props.clickedId, props.clickedName, rowClicked, updateCustomerRental]);
+    }, [props.clickedId, props.clickedName, rowClicked, updateCustomerRental, props.tableId]);
 
     function closePopupInfo() {
         if (selectedCustomerData) {
             setSelectedCustomerData(null);
             setSelectedFilmData(null);
+            setRentalHiddenState('visible');
+            setDetailsHiddenState('fully-hidden');
         }
+        clearInputData();
         closePopup();
     }
 
     //  Function used to update this row's return date
-    function hasReturnedMovie(custId) {
+    function hasReturnedMovie(custId, rentalId) {
         if (window.confirm("Proceed with removing this active rental?")) {
-            console.log(custId);
             // Update the rental record in the database
             fetch('http://localhost:5000/update_customer_rental_history', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ custId, return_date: new Date().toISOString().slice(0, 19).replace('T', ' ') }),
+                body: JSON.stringify({ custId, rentalId, return_date: new Date().toISOString().slice(0, 19).replace('T', ' ') }),
             })
                 .then(response => response.json())
                 .then(() => {
@@ -91,9 +115,6 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
     function rentFilm() {
         let customerId = document.getElementById("num-input").value;
         let filmId = selectedFilmData[0].film_id;
-        console.log(customerId);
-        console.log(filmId);
-        console.log(selectedFilmData[0]);
         fetch('http://localhost:5000/rent_film', {
             method: 'POST',
             headers: {
@@ -102,8 +123,98 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
             body: JSON.stringify({ customerId, filmId, rentalDate: new Date().toISOString().slice(0, 19).replace('T', ' ') }),
         })
             .then(res => res.json())
-
+            .then(data => {
+                rentResponseRef.current.resContainer.innerHTML = data.message;
+                setRentResponseHiddenState('visible');
+            })
+            /*
+            .then(res => {
+                return res.json().then(data => {
+                    rentResponseRef.current.resContainer.innerHTML = data.message;
+                    setRentResponseHiddenState('visible');
+                });
+            })
+            */
             .catch(err => console.error('Error fetching data:', err));
+    }
+
+    function showEditCustomerDetails() {
+        setDetailsHiddenState('visible');
+        setRentalHiddenState('fully-hidden');
+    }
+
+    function showRentalHistory() {
+        setDetailsHiddenState('fully-hidden');
+        setRentalHiddenState('visible');
+
+        clearInputData();
+    }
+
+    function hideRentResponse() {
+        setRentResponseHiddenState('fully-hidden');
+    }
+
+    function sendUpdatedCustomerData() {
+        const inputName = inputRefs.current.name.value !== null ? inputRefs.current.name.value : "";
+        const inputEmail = inputRefs.current.email.value !== null ? inputRefs.current.email.value : "";
+        const inputAddress = inputRefs.current.address.value !== null ? inputRefs.current.address.value : "";
+        const inputDistrict = inputRefs.current.district.value !== null ? inputRefs.current.district.value : "";
+        const inputZipCode = inputRefs.current.zipCode.value !== null ? inputRefs.current.zipCode.value : "";
+        const inputCity = inputRefs.current.city.value !== null ? inputRefs.current.city.value : "";
+        const inputCountry = inputRefs.current.country.value !== null ? inputRefs.current.country.value : "";
+        const inputPhoneNum = inputRefs.current.phone.value !== null ? inputRefs.current.phone.value : "";
+
+        console.log(inputName);
+        console.log(inputAddress);
+        if (inputRefs.current.name.value !== null) {
+            setCustomerName(inputRefs.current.name.value.toUpperCase());
+        }
+
+        //name2 = inputRefs.current.name.value !== null ? inputRefs.current.name.value : props.clickedName;
+
+        if (inputName === "") {
+            console.log("No name inputted");
+        }
+
+        fetch('http://localhost:5000/update_existing_customer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ customerId: props.clickedId, inputName, inputEmail, inputAddress, inputDistrict, inputZipCode, inputCity, inputCountry, inputPhoneNum }),
+        })
+            .then(res => res.json())
+            .then(updatedCustomer)
+            .catch(err => console.error('Error fetching data:', err));
+    }
+
+    function clearInputData() {
+        if (props.tableId === 2) {
+            inputRefs.current.name.value = null;
+            inputRefs.current.email.value = null;
+            inputRefs.current.address.value = null;
+            inputRefs.current.district.value = null;
+            inputRefs.current.zipCode.value = null;
+            inputRefs.current.city.value = null;
+            inputRefs.current.country.value = null;
+            inputRefs.current.phone.value = null;
+        }
+    }
+
+    function removeCustomer() {
+        if (window.confirm("This action will permanently remove this customer from the system. Proceed?")) {
+            closePopupInfo();
+            fetch('http://localhost:5000/remove_customer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ customerId: props.clickedId }),
+            })
+                .then(res => res.json())
+                .then(removedCustomer)
+                .catch(err => console.error('Error fetching data:', err));
+        }
     }
 
     return (
@@ -142,72 +253,127 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
                     </>
                 ) : props.tableId === 2 ? (
                     <>
-                        <h2>{name2}</h2>
-                        <h3>Past Rentals</h3>
-                        <div id="pastRentalsTable" className='overflowing-table-container'>
-                            <table>
-                                <thead>
-                                    <tr className='sticky-heading'>
-                                        <th>RENTAL ID</th>
-                                        <th>STORE ID</th>
-                                        <th style={{ width: "210px" }}>DATE RENTED</th>
-                                        <th style={{ width: "210px" }}>DATE RETURNED</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedCustomerData && selectedCustomerData.map(row => {
-                                        if (row.return_date !== null) {
-                                            return (
-                                                <tr key={row.rental_id}>
-                                                    <td className=''>{row.rental_id}</td>
-                                                    <td className=''>{row.staff_id}</td>
-                                                    <td className=''>{row.rental_date}</td>
-                                                    <td className=''>{row.return_date}</td>
-                                                </tr>
-                                            )
-                                        }
-                                        return null;
-                                    })}
-                                </tbody>
-                            </table>
+                        <div className='flex-row flex-centered'>
+                            <h2>{customerName}</h2>
+                            <input type='image' src={editCustomerIcon} width={50} height={50} alt='edit_customer_icon' onClick={showEditCustomerDetails} className={rentalHiddenState}></input>
+                        </div>
+                        <div className={`remove-customer-container ${rentalHiddenState}`}>
+                            <input type='button' onClick={removeCustomer} value={'REMOVE CUSTOMER'} className='rm-cust-btn'></input>
                         </div>
 
-                        <h3>Active Rentals (Click to confirm film returned)</h3>
-                        <div id="activeRentalsTable" className='overflowing-table-container'>
-                            <table>
-                                <thead>
-                                    <tr className='sticky-heading'>
-                                        <th>RENTAL ID</th>
-                                        <th>STORE ID</th>
-                                        <th style={{ width: "210px" }}>DATE RENTED</th>
-                                        <th style={{ width: "210px" }}>DATE RETURNED</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedCustomerData && selectedCustomerData.some(row => row.return_date === null) ? (
-                                        selectedCustomerData.map(row => {
-                                            if (row.return_date === null) {
+                        <div id='rental-history-container' className={rentalHiddenState}>
+                            <h3>Past Rentals</h3>
+                            <div id="pastRentalsTable" className='overflowing-table-container'>
+                                <table>
+                                    <thead>
+                                        <tr className='sticky-heading'>
+                                            <th>RENTAL ID</th>
+                                            <th>STORE ID</th>
+                                            <th style={{ width: "210px" }}>DATE RENTED</th>
+                                            <th style={{ width: "210px" }}>DATE RETURNED</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {selectedCustomerData && selectedCustomerData.map(row => {
+                                            if (row.return_date !== null) {
                                                 return (
-                                                    <tr key={row.rental_id} className='hoverable-row' onClick={() => hasReturnedMovie(row.customer_id)}>
-                                                        <td key={`cell-${row.rental_id}`} className=''>{row.rental_id}</td>
-                                                        <td key={`cell-${row.staff_id}`} className=''>{row.staff_id}</td>
-                                                        <td key={`cell-${row.rental_date}`} className=''>{row.rental_date}</td>
-                                                        <td key={`cell-blank-${row.rental_id}}`} className=''>N/A</td>
+                                                    <tr key={row.rental_id}>
+                                                        <td className=''>{row.rental_id}</td>
+                                                        <td className=''>{row.staff_id}</td>
+                                                        <td className=''>{row.rental_date}</td>
+                                                        <td className=''>{row.return_date}</td>
                                                     </tr>
-                                                );
+                                                )
                                             }
                                             return null;
-                                        })
-                                    ) : (
-                                        <tr key="row">
-                                            <td key={"1"} className=''></td>
-                                            <td key={"2"} className=''></td>
-                                            <td key={"3"} className=''></td>
-                                            <td key={"4"} className=''></td>
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h3>Active Rentals (Click to confirm film returned)</h3>
+                            <div id="activeRentalsTable" className='overflowing-table-container'>
+                                <table>
+                                    <thead>
+                                        <tr className='sticky-heading'>
+                                            <th>RENTAL ID</th>
+                                            <th>STORE ID</th>
+                                            <th style={{ width: "210px" }}>DATE RENTED</th>
+                                            <th style={{ width: "210px" }}>DATE RETURNED</th>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {selectedCustomerData && selectedCustomerData.some(row => row.return_date === null) ? (
+                                            selectedCustomerData.map(row => {
+                                                if (row.return_date === null) {
+                                                    return (
+                                                        <tr key={`active-${row.rental_id}`} className='hoverable-row' onClick={() => hasReturnedMovie(row.customer_id, row.rental_id)}>
+                                                            <td key={`cell-${row.rental_id}`} className=''>{row.rental_id}</td>
+                                                            <td key={`cell-${row.staff_id}`} className=''>{row.staff_id}</td>
+                                                            <td key={`cell-${row.rental_date}`} className=''>{row.rental_date}</td>
+                                                            <td key={`cell-blank-${row.rental_id}}`} className=''>N/A</td>
+                                                        </tr>
+                                                    );
+                                                }
+                                                return null;
+                                            })
+                                        ) : (
+                                            <tr key="no-active-rentals">
+                                                <td colSpan="4">No active rentals</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id='edit-details-container' className={`${detailsHiddenState}`}>
+                            <div className='flex-col'>
+                                <div className='flex-centered details-title'>EDIT DETAILS</div>
+                                <div className='padding-info flex-row flex-space-between'>
+                                    <label htmlFor='inputName'>New Name:&nbsp;&nbsp;</label>
+                                    <input type='text' placeholder={props.clickedName} ref={el => (inputRefs.current.name = el)} name='inputName'></input>
+                                </div>
+
+                                <div className='padding-info flex-row flex-space-between'>
+                                    <label htmlFor='inputEmail'>New Email&nbsp;&nbsp;</label>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].email : "N/A"} ref={el => (inputRefs.current.email = el)} name='inputEmail'></input>
+                                </div>
+
+                                <div className='padding-info flex-row flex-space-between'>
+                                    <label htmlFor='inputAddress'>New Address:&nbsp;&nbsp;</label>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].address : "N/A"} ref={el => (inputRefs.current.address = el)} name='inputAddress'></input>
+                                </div>
+
+                                <div className='padding-info flex-row flex-space-between'>
+                                    <label htmlFor='inputDistrict'>New District:&nbsp;&nbsp;</label>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].district : "N/A"} ref={el => (inputRefs.current.district = el)} name='inputDistrict'></input>
+                                </div>
+
+
+                                <div className='padding-info flex-row flex-space-between'>
+                                    <label htmlFor='inputZipCode'>New Zip Code:&nbsp;&nbsp;</label>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].postal_code : "N/A"} ref={el => (inputRefs.current.zipCode = el)} name='inputZipCode'></input>
+                                </div>
+                                <div className='padding-info flex-row flex-space-between'>
+                                    <label htmlFor='inputCity'>New City:&nbsp;&nbsp;</label>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].city : "N/A"} ref={el => (inputRefs.current.city = el)} name='inputCity'></input>
+                                </div>
+
+                                <div className='padding-info flex-row flex-space-between'>
+                                    <label htmlFor='inputCountry'>New Country:&nbsp;&nbsp;</label>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].country : "N/A"} ref={el => (inputRefs.current.country = el)} name='inputCountry'></input>
+                                </div>
+
+                                <div className='padding-info flex-row flex-space-between'>
+                                    <label htmlFor='inputPhoneNum'>New Phone #:&nbsp;&nbsp;</label>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].phone : "N/A"} ref={el => (inputRefs.current.phone = el)} name='inputPhoneNum'></input>
+                                </div>
+
+                                <div className='padding-info flex-row flex-centered'>
+                                    <input type='button' onClick={showRentalHistory} value={"GO BACK"}></input>
+                                    <input type='button' onClick={sendUpdatedCustomerData} value={"SUBMIT"}></input>
+                                </div>
+                            </div>
                         </div>
                     </>
                 ) : (
@@ -215,26 +381,27 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked }) => {
                         <h2>{name3}</h2>
                         {selectedFilmData && selectedFilmData.map(row => {
                             return (
-                                <>
-                                    <p key="description" className='padding-info'><u>Description:</u>&nbsp;&nbsp;&nbsp;{row.description}</p>
-                                    <p key="release" className='padding-info'><u>Release Year:</u>&nbsp;&nbsp;&nbsp;{row.release_year}</p>
-                                    <p key="duration" className='padding-info'><u>Rental Duration:</u>&nbsp;&nbsp;&nbsp;{row.rental_duration}&nbsp;days</p>
-                                    <p key="rate" className='padding-info'><u>Rental Rate:</u>&nbsp;&nbsp;&nbsp;${row.rental_rate}</p>
-                                    <p key="length" className='padding-info'><u>Film Length:</u>&nbsp;&nbsp;&nbsp;{row.length}&nbsp;min</p>
-                                    <p key="cost" className='padding-info'><u>Replacement Cost:</u>&nbsp;&nbsp;&nbsp;${row.replacement_cost}</p>
-                                    <p key="rating" className='padding-info'><u>Film Rating:</u>&nbsp;&nbsp;&nbsp;{row.rating}</p>
-                                    <p key="features" className='padding-info'><u>Special Features:</u>&nbsp;&nbsp;&nbsp;{row.special_features}</p>
-                                    <div key="rent-container" className='padding-info rent-film-container'>
-                                        <input key="num-input" id='num-input' type='number' placeholder='Customer ID...'></input>
-                                        <input key="submit-btn" type='submit' id='submit-btn' value="RENT FILM" onClick={rentFilm}></input>
+                                <React.Fragment key={row.film_id}>
+                                    <p className='padding-info'><u>Description:</u>&nbsp;&nbsp;&nbsp;{row.description}</p>
+                                    <p className='padding-info'><u>Release Year:</u>&nbsp;&nbsp;&nbsp;{row.release_year}</p>
+                                    <p className='padding-info'><u>Rental Duration:</u>&nbsp;&nbsp;&nbsp;{row.rental_duration}&nbsp;days</p>
+                                    <p className='padding-info'><u>Rental Rate:</u>&nbsp;&nbsp;&nbsp;${row.rental_rate}</p>
+                                    <p className='padding-info'><u>Film Length:</u>&nbsp;&nbsp;&nbsp;{row.length}&nbsp;min</p>
+                                    <p className='padding-info'><u>Replacement Cost:</u>&nbsp;&nbsp;&nbsp;${row.replacement_cost}</p>
+                                    <p className='padding-info'><u>Film Rating:</u>&nbsp;&nbsp;&nbsp;{row.rating}</p>
+                                    <p className='padding-info'><u>Special Features:</u>&nbsp;&nbsp;&nbsp;{row.special_features}</p>
+                                    <div className='padding-info rent-film-container'>
+                                        <input className='input-cust-rent-btn' onClick={hideRentResponse} id='num-input' type='number' placeholder='Customer ID...' min={'1'}></input>
+                                        <input className='submit-cust-rent-btn' type='submit' id='submit-btn' value="RENT FILM" onClick={rentFilm}></input>
                                     </div>
-                                </>
+                                    <div className={`${rentResponseHiddenState} rent-response-container`} ref={el => (rentResponseRef.current.resContainer = el)}></div>
+                                </React.Fragment>
                             )
                         })}
                     </>
                 )}
             </div >
-        </div>
+        </div >
     );
 };
 

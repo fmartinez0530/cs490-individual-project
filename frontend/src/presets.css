@@ -1,15 +1,28 @@
 .flex-col {
+    display: flex;
     flex-direction: column;
 }
 
 .flex-row {
+    display: flex;
     flex-direction: row;
 }
 
 .flex-centered {
     display: flex;
     align-items: center;
+    justify-content: center;
+}
+
+.flex-centered-evenly {
+    display: flex;
+    align-items: center;
     justify-content: space-evenly;
+}
+
+.flex-space-between {
+    display: flex;
+    justify-content: space-between;
 }
 
 .flex-centered-100 {
@@ -41,4 +54,13 @@
 
 .width-100 {
     width: 100px;
+}
+
+.fully-hidden {
+    display: none;
+    visibility: hidden;
+}
+
+.max-content {
+    width: max-content;
 }

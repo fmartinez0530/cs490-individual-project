@@ -3,11 +3,11 @@
 }
 
 #backdrop-container {
-    position: absolute;
+    position: fixed;
 
 
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     backdrop-filter: blur(5px);
     z-index: 9;
 }
@@ -23,7 +23,7 @@
     padding: 20px;
     border-radius: 25px;
     max-width: 600px;
-    max-height: 600px;
+    height: max-content;
 
     overflow-y: scroll;
 
@@ -38,10 +38,6 @@
 
 .align-center {
     text-align: center;
-}
-
-.rent-film-container {
-    display: flex;
 }
 
 .cell-info-actor {
@@ -72,4 +68,63 @@ button {
 
 .hoverable-row:hover {
     background-color: #3b3b3b;
+}
+
+.remove-customer-container {
+    width: 100%;
+    text-align: center;
+}
+
+.rm-cust-btn {
+    width: max-content;
+    height: max-content;
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: none;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.rent-film-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.input-cust-rent-btn {
+    width: max-content;
+    height: max-content;
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: none;
+
+    &:hover {
+        cursor: text;
+    }
+}
+
+.submit-cust-rent-btn {
+    width: max-content;
+    height: max-content;
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: none;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.rent-response-container {
+    width: 100%;
+    text-align: center;
+}
+
+.details-title {
+    font-size: 16pt;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bold;
 }

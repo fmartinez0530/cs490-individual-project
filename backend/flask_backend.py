@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify #,render_template, request
 from flask_mysqldb import MySQL
 from flask_cors import CORS, cross_origin
+import random
 app = Flask(__name__)
 CORS(app)
  
@@ -99,8 +100,12 @@ def sendCustomersList():
     try:
         cursor = mysql.connection.cursor()
         cursor.execute('''
-                Select * From customer_list
-                Order By customer_list.ID
+                Select customer.customer_id, customer.first_name, customer.last_name, customer.email, address.address, address.district, address.postal_code, city.city, country.country, address.phone
+                From customer
+                Inner Join address On customer.address_id = address.address_id
+                Inner Join city On address.city_id = city.city_id
+                Inner Join country On city.country_id = country.country_id
+                Order By customer.customer_id;
         ''')
         data = cursor.fetchall()
         columns = [column[0] for column in cursor.description]
@@ -150,6 +155,7 @@ def updateRentalHistory():
     try:
         data = request.json
         customerId = data.get('custId')
+        rentalId = data.get('rentalId')
         returnDate = data.get('return_date')
         print(returnDate)
 
@@ -157,8 +163,8 @@ def updateRentalHistory():
         cursor.execute('''
                 Update rental
                 Set return_date = %s
-                Where customer_id = %s
-        ''', (returnDate, customerId))
+                Where customer_id = %s And rental_id = %s
+        ''', (returnDate, customerId, rentalId))
         mysql.connection.commit()
         cursor.close()
         return jsonify({'message': 'Rental history updated successfully'}), 200
@@ -211,5 +217,164 @@ def rentFilmToCustomer():
                 return jsonify({'message': 'Customer found. No copies found.'}), 404
         else:
             return jsonify({'message': "Customer not found."}), 404
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500
+    
+@app.route('/update_existing_customer', methods = ['POST'])
+def updateExistingCustomer():
+    try:
+        data = request.json
+        custId = data.get('customerId')
+
+        #   Assign variables to be used later for updating this customer
+        cursor = mysql.connection.cursor()
+        cursor.execute('''
+                Select customer.first_name, customer.last_name, customer.email, address.address, address.district, address.postal_code, city.city, country.country, address.phone, city.city_id, address.address_id
+                From customer
+                Inner Join address On customer.address_id = address.address_id
+                Inner Join city On address.city_id = city.city_id
+                Inner Join country On city.country_id = country.country_id
+                Where customer_id = %s;
+        ''', (custId, ))
+        results = cursor.fetchone()
+
+        #custName = data.get('inputName').upper() if data.get('inputName') != "" else results[0]
+        
+        custFirstName = data.get('inputName').split()[0].upper() if data.get('inputName') != "" else results[0]
+        custLastName = data.get('inputName').split()[1].upper() if data.get('inputName') != "" else results[1]
+        custEmail = data.get('inputEmail') if data.get('inputEmail') != "" else results[2]
+        custAddress = data.get('inputAddress').title() if data.get('inputAddress') != "" else results[3]
+        custDistrict = data.get('inputDistrict').title() if data.get('inputDistrict') != "" else results[4]
+        custZipCode = data.get('inputZipCode') if data.get('inputZipCode') != "" else results[5]
+        custCity = data.get('inputCity').title() if data.get('inputCity') != "" else results[6]
+        custCountry = data.get('inputCountry').title() if data.get('inputCountry') != "" else results[7]
+        custPhoneNum = data.get('inputPhoneNum') if data.get('inputPhoneNum') != "" else results[8]
+        custCityId = results[9]
+        custAddressId = results[10]
+
+        #   Check if city and country have been updated, and if so are they valid
+        cursor.execute('''
+                Select city_id From city
+                Where city = %s;
+        ''', (custCity, ))
+        results = cursor.fetchone()
+        if results != "":
+            custCityId = results[0]
+        else:
+            return jsonify({'error':'Invalid city inputted'}), 500
+
+        cursor.execute('''
+                Select country.country_id, country.country, city.city From country
+                Inner Join city on country.country_id = city.country_id
+                Where city.city_id = %s;
+        ''', (custCityId, ))
+        results = cursor.fetchone()
+        if results != "":
+            custCountryId = results[0]
+            custCountry = results[1]
+        else:
+            return jsonify({'error':'Invalid country inputted'}), 500
+
+        #   Update the customer;
+        cursor.execute('''
+                Update customer
+                Set first_name = %s, last_name = %s, email = %s
+                Where customer_id = %s;
+        ''', (custFirstName, custLastName, custEmail, custId))
+        mysql.connection.commit()
+        cursor.execute('''
+                Update address
+                Set address = %s, district = %s, city_id = %s, postal_code = %s, phone = %s
+                Where address_id = %s;
+        ''', (custAddress, custDistrict, custCityId, custZipCode, custPhoneNum, custAddressId))
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({'message': 'Customer updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500
+    
+@app.route('/add_new_customer', methods = ['POST'])
+def addNewCustomer():
+    try:
+        data = request.json
+        custFirstName = data.get('inputName').split()[0].upper()
+        custLastName = data.get('inputName').split()[1].upper()
+        custEmail = data.get('inputEmail')
+        custAddress = data.get('inputAddress').title()
+        custDistrict = data.get('inputDistrict').title()
+        custZipCode = data.get('inputZipCode')
+        custCity = data.get('inputCity').title()
+        custCountry = data.get('inputCountry').title()
+        custPhoneNum = data.get('inputPhoneNum')
+
+        cursor = mysql.connection.cursor()
+
+        #   First, validate city and country that user inputted
+        custCityId = None
+        custCountryId = None
+        cursor.execute('''
+                Select city_id, country_id From city
+                Where city = %s
+        ''', (custCity, ))
+        results = cursor.fetchone()
+        if results == "":
+            return jsonify({'error':'Invalid city inputted'}), 500
+        else:
+            custCityId = results[0]
+            custCountryId = results[1]
+        cursor.execute('''
+                Select country From country
+                Where country_id = %s
+        ''', (custCountryId, ))
+        results = cursor.fetchone()
+        if results == "":
+            return jsonify({'error':'Invalid country inputted'}), 500
+
+        #   Insert into address BEFORE customer (need to create a new address_id)
+        cursor.execute('''
+                Insert Into address (address, district, city_id, postal_code, phone, location)
+                Values (%s, %s, %s, %s, %s, ST_GeomFromText('POINT(-73.935242 40.730610)'));
+        ''', (custAddress, custDistrict, custCityId, custZipCode, custPhoneNum))
+        mysql.connection.commit()
+        cursor.execute('Select LAST_INSERT_ID();')
+        custAddressId = cursor.fetchone()[0]
+        print("Got here 1")
+
+        #   Finally, insert into customer
+        randStoreId = random.randint(1, 2)
+        cursor.execute('''
+                Insert into customer (store_id, first_name, last_name, email, address_id)
+                Values (%s, %s, %s, %s, %s)
+        ''', (randStoreId, custFirstName, custLastName, custEmail, custAddressId))
+        mysql.connection.commit()
+        cursor.close()
+        return jsonify({'message': 'New customer added successfully'}), 200
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500
+    
+@app.route('/remove_customer', methods = ['POST'])
+def removeCustomer():
+    try:
+        data = request.json
+        custId = data.get('customerId')
+        cursor = mysql.connection.cursor()
+        cursor.execute('''
+                Delete From rental
+                Where customer_id = %s
+        ''', (custId, ))
+        mysql.connection.commit()
+        cursor.execute('''
+                Delete From payment
+                Where customer_id = %s
+        ''', (custId, ))
+        mysql.connection.commit()
+        cursor.execute('''
+                Delete From customer
+                Where customer_id = %s
+        ''', (custId, ))
+        mysql.connection.commit()
+        cursor.close()
+        return jsonify({'message': 'Customer removed successfully'}), 200
     except Exception as e:
         return jsonify({'error':str(e)}), 500

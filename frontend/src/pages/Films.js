@@ -85,7 +85,7 @@ const Films = () => {
 
     return (
         <>
-            <div className="flex-col flex-centered">
+            <div className="flex-col flex-centered-evenly">
                 <Filter
                     filters={["film_title", "film_genre", "actor_name"]}
                     onFilterChange={filter => setFilterTerm(filter)}
@@ -93,7 +93,6 @@ const Films = () => {
                         setFilterInput(input);
                         setCurrentPage(1);
                     }}
-                    className="filter-search"
                 />
                 <PaginationTest
                     currentPage={currentPage}
@@ -105,9 +104,9 @@ const Films = () => {
                     <thead>
                         <tr>
                             <th className="table-cell bot-border" style={{ width: "100px" }}>ID</th>
-                            <th className="table-cell bot-border" style={{ width: "300px" }}>Title</th>
-                            <th className="table-cell bot-border" style={{ width: "200px" }}>Genre</th>
-                            <th className="table-cell bot-border">Actors</th>
+                            <th className="table-cell bot-border" style={{ width: "300px" }}>TITLE</th>
+                            <th className="table-cell bot-border" style={{ width: "200px" }}>GENRE</th>
+                            <th className="table-cell bot-border">ACTORS</th>
                         </tr>
                     </thead>
                     <tbody>
