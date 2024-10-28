@@ -65,7 +65,7 @@ const Customers = () => {
                 .then(res => res.json())
                 .then(data => {
                     setCustomersData(data);
-                    //console.log(customersData);
+                    //console.log(data);
                     clearInterval(fetchCustomersDataInterval);
                 })
                 .catch(err => console.error('Error fetching data:', err));
@@ -94,6 +94,7 @@ const Customers = () => {
 
     function hideAddCustomer() {
         setAddCustomerHiddenState('fully-hidden');
+        clearInputData();
     }
 
     function addNewCustomer() {
@@ -111,9 +112,6 @@ const Customers = () => {
             alert("Every field must be filled in!");
             return;
         }
-        else {
-            clearInputData();
-        }
 
         fetch('http://localhost:5000/add_new_customer', {
             method: 'POST',
@@ -123,8 +121,12 @@ const Customers = () => {
             body: JSON.stringify({ inputName, inputEmail, inputAddress, inputDistrict, inputZipCode, inputCity, inputCountry, inputPhoneNum }),
         })
             .then(res => res.json())
-            .then(clearInputData)
-            .then(newCustomerState)
+            .then(() => {
+                clearInputData();
+                newCustomerState();
+                hideAddCustomer();
+                alert("Customer added successfully!")
+            })
             .catch(err => console.error('Error fetching data:', err));
     }
 
@@ -204,7 +206,7 @@ const Customers = () => {
                                 <tr onClick={() => displayClickedRowData(row)} className="hoverable-row" key={`customer-${row.customer_id}`}>
                                     <td className="table-cell" style={{ textAlign: "center" }}>{row.customer_id}</td>
                                     <td className="table-cell">{`${row.first_name} ${row.last_name}`}</td>
-                                    <td className="table-cell">{row.email}</td>
+                                    <td className="table-cell wrap-cell">{row.email}</td>
                                     <td className="table-cell wrap-cell">{`${row.address}, ${row.district}, ${row.postal_code}, ${row.city}, ${row.country}`}</td>
                                     <td className="table-cell">{row.phone}</td>
                                 </tr>
@@ -226,46 +228,49 @@ const Customers = () => {
 
             <div id="add-customer-container" className={addCustomerHiddenState}>
                 <div className='flex-col'>
-                    <div className='padding-info'>
-                        <label htmlFor='inputName'>Input New Name</label>
+                    <h2 className="flex-centered">
+                        CUSTOMER'S INFORMATION
+                    </h2>
+                    <div className='padding-info flex-row flex-space-between'>
+                        <label htmlFor='inputName'>New Name</label>
                         <input type='text' ref={el => (inputRefs.current.name = el)} id='inputName' name='inputName'></input>
                     </div>
 
-                    <div className='padding-info'>
-                        <label htmlFor='inputEmail'>Input New Email</label>
+                    <div className='padding-info flex-row flex-space-between'>
+                        <label htmlFor='inputEmail'>New Email</label>
                         <input type='text' ref={el => (inputRefs.current.email = el)} id='inputEmail' name='inputEmail'></input>
                     </div>
 
-                    <div className='padding-info'>
-                        <label htmlFor='inputAddress'> Input New Address</label>
+                    <div className='padding-info flex-row flex-space-between'>
+                        <label htmlFor='inputAddress'> New Address</label>
                         <input type='text' ref={el => (inputRefs.current.address = el)} id='inputAddress' name='inputAddress'></input>
                     </div>
 
-                    <div className='padding-info'>
-                        <label htmlFor='inputDistrict'> Input New District</label>
+                    <div className='padding-info flex-row flex-space-between'>
+                        <label htmlFor='inputDistrict'>New District</label>
                         <input type='text' ref={el => (inputRefs.current.district = el)} id='inputDistrict' name='inputDistrict'></input>
                     </div>
 
-                    <div className='padding-info'>
-                        <label htmlFor='inputZipCode'>Input New Zip Code</label>
+                    <div className='padding-info flex-row flex-space-between'>
+                        <label htmlFor='inputZipCode'>New Zip Code</label>
                         <input type='text' ref={el => (inputRefs.current.zipCode = el)} id='inputZipCode' name='inputZipCode'></input>
                     </div>
-                    <div className='padding-info'>
-                        <label htmlFor='inputCity'>Input New City</label>
+                    <div className='padding-info flex-row flex-space-between'>
+                        <label htmlFor='inputCity'>New City</label>
                         <input type='text' ref={el => (inputRefs.current.city = el)} id='inputCity' name='inputCity'></input>
                     </div>
 
-                    <div className='padding-info'>
-                        <label htmlFor='inputCountry'>Input New Country</label>
+                    <div className='padding-info flex-row flex-space-between'>
+                        <label htmlFor='inputCountry'>New Country</label>
                         <input type='text' ref={el => (inputRefs.current.country = el)} id='inputCountry' name='inputCountry'></input>
                     </div>
 
-                    <div className='padding-info'>
-                        <label htmlFor='inputPhoneNum'>Input New Phone #</label>
+                    <div className='padding-info flex-row flex-space-between'>
+                        <label htmlFor='inputPhoneNum'>New Phone #</label>
                         <input type='text' ref={el => (inputRefs.current.phone = el)} id='inputPhoneNum' name='inputPhoneNum'></input>
                     </div>
 
-                    <div className='padding-info'>
+                    <div className='padding-info flex-row flex-centered'>
                         <input type='button' onClick={hideAddCustomer} value={"GO BACK"}></input>
                         <input type='button' onClick={addNewCustomer} value={"SUBMIT"}></input>
                     </div>

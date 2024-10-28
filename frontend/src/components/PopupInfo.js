@@ -336,37 +336,37 @@ const PopupInfo = ({ props, visible, closePopup, rowClicked, updatedCustomer, re
 
                                 <div className='padding-info flex-row flex-space-between'>
                                     <label htmlFor='inputEmail'>New Email&nbsp;&nbsp;</label>
-                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].email : "N/A"} ref={el => (inputRefs.current.email = el)} name='inputEmail'></input>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId && props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)] ? props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)].email : "N/A"} ref={el => (inputRefs.current.email = el)} name='inputEmail'></input>
                                 </div>
 
                                 <div className='padding-info flex-row flex-space-between'>
                                     <label htmlFor='inputAddress'>New Address:&nbsp;&nbsp;</label>
-                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].address : "N/A"} ref={el => (inputRefs.current.address = el)} name='inputAddress'></input>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId && props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)] ? props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)].address : "N/A"} ref={el => (inputRefs.current.address = el)} name='inputAddress'></input>
                                 </div>
 
                                 <div className='padding-info flex-row flex-space-between'>
                                     <label htmlFor='inputDistrict'>New District:&nbsp;&nbsp;</label>
-                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].district : "N/A"} ref={el => (inputRefs.current.district = el)} name='inputDistrict'></input>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId && props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)] ? props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)].district : "N/A"} ref={el => (inputRefs.current.district = el)} name='inputDistrict'></input>
                                 </div>
 
 
                                 <div className='padding-info flex-row flex-space-between'>
                                     <label htmlFor='inputZipCode'>New Zip Code:&nbsp;&nbsp;</label>
-                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].postal_code : "N/A"} ref={el => (inputRefs.current.zipCode = el)} name='inputZipCode'></input>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId && props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)] ? props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)].postal_code : "N/A"} ref={el => (inputRefs.current.zipCode = el)} name='inputZipCode'></input>
                                 </div>
                                 <div className='padding-info flex-row flex-space-between'>
                                     <label htmlFor='inputCity'>New City:&nbsp;&nbsp;</label>
-                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].city : "N/A"} ref={el => (inputRefs.current.city = el)} name='inputCity'></input>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId && props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)] ? props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)].city : "N/A"} ref={el => (inputRefs.current.city = el)} name='inputCity'></input>
                                 </div>
 
                                 <div className='padding-info flex-row flex-space-between'>
                                     <label htmlFor='inputCountry'>New Country:&nbsp;&nbsp;</label>
-                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].country : "N/A"} ref={el => (inputRefs.current.country = el)} name='inputCountry'></input>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId && props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)] ? props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)].country : "N/A"} ref={el => (inputRefs.current.country = el)} name='inputCountry'></input>
                                 </div>
 
                                 <div className='padding-info flex-row flex-space-between'>
                                     <label htmlFor='inputPhoneNum'>New Phone #:&nbsp;&nbsp;</label>
-                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId ? props.tableData[parseInt(props.clickedId) - 1].phone : "N/A"} ref={el => (inputRefs.current.phone = el)} name='inputPhoneNum'></input>
+                                    <input type='text' placeholder={props.tableData.length > 0 && props.clickedId && props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)] ? props.tableData[props.tableData.findIndex(item => item.customer_id === props.clickedId)].phone : "N/A"} ref={el => (inputRefs.current.phone = el)} name='inputPhoneNum'></input>
                                 </div>
 
                                 <div className='padding-info flex-row flex-centered'>
